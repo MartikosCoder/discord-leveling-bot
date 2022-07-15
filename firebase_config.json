@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "leveling-bot",
+  "private_key_id": "654d5f62186641354d5316469ff918e79686261b",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC2hD7RKkfbqQgH\nDrNjnst5IrThqckgRkxofplCdzc+TWqZbyIYXOVQmp9pwwLtZfIPt+ChCqsKUU2r\nwv7Td5G87tINvTq9D6mTN9y4bUmipAyse5bcTK4sXxEqrPa7QqHDj8u3S7UtuA39\ngYNAhu0marrRiFFvSll0lNLusSyW1OzWiC2+QkcU0pcRvDOQZbINg+rReVkvugHq\nJ63YNgeraNKucb5U2JPEaKBRGV4g7Dz+U66FFOixx7uGaEXFY6jTHALTFcBGrGZY\nkRFrg+H2AxAVkPuiciVYjayA6Lh/I1j8LmGxLjX6y2YV0jPV8AjgvB7gX95QW0bt\nyjtlTM5zAgMBAAECggEACLlMeVnwglbTe+bfezEBX8Jha/HeG61QhKQcdjlViiRQ\nJpJRymFSUqZ5XShFkQxQ5CBxW7EzWLRnJoEVBg2OiT3PC3oSfyvq+o7ufWA35065\nDlt/6/q8ToGiw+vthSjbq4nJfnLfb5Z/ELFqkSCB4Fa0pERERDIFEZX1eRQ94d2p\n1OGzMPCFIjXjTqwGKiWkVRcBzG14v+fvAnMVvkGEkHjvceHpwyRk/4sEjCN93KOG\nquP7e6FF6h1KNA9+ZuBM+mYa3c7Ge7Qse1+fuUf+uIj8vlYanxs9SavTa88FUgIv\nIsqYGaPhqyTRg6MXb+E+OQqAdoNXy8WcMCYyvBC8rQKBgQDpXVUn34gPrcOWZZEV\nKe2Uj2l1S89HgKas9VVzcrzTCCh137gSJ5qpV0kPP1rauPl/ew9SSNEctiFwu8Zw\nS3vAeSxzDiyfVjgwk1Py/o3ceT1ulHI/zkQiXDYv/B0eA/vdzA8VgpfC3suUieAR\nOzZb2epPMrqF1EGgk5/f2D8G9wKBgQDIOE7YDWpTStyzO/mwbUShf6Dc8vKqjvFs\nYTheAAhmh+oxBLcrDGq608RldPQqPBJXppmwuoxStsfQVy5cdCstowfvOtOcjF7I\ngHWfebErPclohDJ5NOlKYPmzYqO2Lt1Yif/sqyLoYYwgILcqVGMfNmfGMnaIkeMk\nrRVnqlqpZQKBgFhUUXUkMLXuiYeVrhKaqih/F+Wj6jMgSPZSbiOinEIsZlQnd963\nSt0qAqdYzaTYOue7xpLYqP37GjE3gebjS1YRB3gNN2qgEeig+zeQjlWTNmNyoMPx\n6OwwhvomrUa9L0pGgLcdlR/XgKsafMtI5Exj8UJE60DYlHaZKfxqN4EFAoGAEuxP\nd1f9PpYKud3nQWdyXxki6P8FNF2CL84Yd7nlEVuzJKLfdPAdfj7ZhwVAtmUrDqGu\nUOewr3ia9fPna9GG6y9HZrLWoSsbIjQR6dqkhgO272vfIVmA2wjDUNL3yhYv0Vhp\nmcKq7++YQMkWxqdnHuITeMX4MfwnzaWWKlANdYkCgYEAjYpWYA0I7Y+Mjt9P8GtW\nSZkvlM4BdwmARaUJMGIMDVZ/PE6te50jMvkMC9Ld+DlUwGCmyDEmNMSHu+cwKDhS\nmGWsWJCXd3J+PubAj72KLAn4yRh9d80I6lVKgJL5O6d4M3+DFGTza7DBTcd4jyx+\nCxNmq7F0ooDNephhV4J5Fhc=\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-ab4z1@leveling-bot.iam.gserviceaccount.com",
+  "client_id": "115404542508941550921",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-ab4z1%40leveling-bot.iam.gserviceaccount.com"
+}

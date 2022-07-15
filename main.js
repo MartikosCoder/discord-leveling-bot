@@ -3,7 +3,7 @@ const config = require("./config.json");
 // TELEGRAM
 const TeleBot = require('telebot');
 const bot = new TeleBot({
-    token: config.telegram_token
+    token: process.env.TELEGRAM_BOT
 });
 
 // FIRESTORE
@@ -163,4 +163,4 @@ client.on("messageReactionAdd", (_, user) => {
     addActivityCount(author_id, ACTIVITY_LEVEL);
 })
 
-client.login(config.discord_token);
+client.login(process.env.DISCORD_BOT);

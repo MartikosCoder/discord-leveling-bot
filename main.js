@@ -76,8 +76,11 @@ const giveFirstLevel = async (author_id) => {
 const addSecondLevelReaction = async (author_id, message_id) => {
     const users_ref = db.collection('users').doc(author_id);
 
-    const doc = await users_ref.get();
-    if(!doc.exists) return;
+    let doc = await users_ref.get();
+    if(!doc.exists) { 
+        await createUser(users_ref);
+        doc = await users_ref.get();
+    }
 
     const data = doc.data();
     const has_reactions = () => data.second_level_reactions.length === config.second_level_reactions_count;
@@ -96,8 +99,11 @@ const addSecondLevelReaction = async (author_id, message_id) => {
 const addSecondLevelMessage = async (author_id, message_length) => {
     const users_ref = db.collection('users').doc(author_id);
 
-    const doc = await users_ref.get();
-    if(!doc.exists) return;
+    let doc = await users_ref.get();
+    if(!doc.exists) { 
+        await createUser(users_ref);
+        doc = await users_ref.get();
+    }
 
     const data = doc.data();
     const has_reactions = () => data.second_level_reactions.length === config.second_level_reactions_count;
@@ -117,8 +123,11 @@ const addSecondLevelMessage = async (author_id, message_length) => {
 const setThirdLevelTelegram = async (author_id, telegram_id) => {
     const users_ref = db.collection('users').doc(author_id);
 
-    const doc = await users_ref.get();
-    if(!doc.exists) return;
+    let doc = await users_ref.get();
+    if(!doc.exists) { 
+        await createUser(users_ref);
+        doc = await users_ref.get();
+    }
 
     const data = doc.data();
 
@@ -139,8 +148,11 @@ const setThirdLevelTelegram = async (author_id, telegram_id) => {
 const addThirdLevelInvite = async (author_id) => {
     const users_ref = db.collection('users').doc(author_id);
 
-    const doc = await users_ref.get();
-    if(!doc.exists) return;
+    let doc = await users_ref.get();
+    if(!doc.exists) { 
+        await createUser(users_ref);
+        doc = await users_ref.get();
+    }
 
     const data = doc.data();
     if(data.third_level_invites === config.third_invites_count) return;

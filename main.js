@@ -3,7 +3,7 @@ const config = require("./config.json");
 // TELEGRAM
 const TeleBot = require('telebot');
 const bot = new TeleBot({
-    token: process.env.TELEGRAM_BOT
+    token: '5500307758:AAGXi8AYMEs6B11xoFPn-B91eqJVebTrEr8'
 });
 
 // FIRESTORE
@@ -22,71 +22,178 @@ const Discord = require("discord.js");
 
 const client = new Discord.Client();
 
-const BASE_LEVEL = config.base_level;
-const PLUS_LEVEL = config.plus_level;
-const ACTIVITY_LEVEL = config.activity_level;
-const SOCIAL_LEVEL = config.social_level;
+// Создание пользователя
+const createUser = async (ref) => {
+    await ref.set({
+        lvl: 0,
+        first_level_reaction: false,
+        second_level_reactions: [],
+        second_level_messages: 0,
+        third_level_tg: false,
+        third_level_tw: false,
+        third_level_invites: 0
+    });
+}
+
+const syncLevel = user_info => {
+    if(user_info.lvl === 0 && user_info.first_level_reaction) {
+        user_info.lvl = 1;
+    }
+
+    if(user_info.lvl === 1 && 
+        user_info.second_level_messages === config.second_level_messages_count && 
+        user_info.second_level_reactions.length === config.second_level_reactions_count) {
+        user_info.lvl = 2;
+    }
+    
+    if(user_info.lvl === 2 && user_info.third_level_tg && user_info.third_level_tw && user_info.third_level_invites === config.third_invites_count) {
+        user_info.lvl = 3;
+    }
+
+    return user_info;
+}
+
+// Первый уровень
+const giveFirstLevel = async (author_id) => {
+    const users_ref = db.collection('users').doc(author_id);
+
+    let doc = await users_ref.get();
+    if(!doc.exists) { 
+        await createUser(users_ref);
+        doc = await users_ref.get();
+    }
+
+    const data = doc.data();
+    if(data.first_level_reaction) return;
+
+    data.first_level_reaction = true;
+    const new_data = syncLevel(data);
+
+    await users_ref.update(new_data);
+}
+
+// Второй уровень - реакции
+const addSecondLevelReaction = async (author_id, message_id) => {
+    const users_ref = db.collection('users').doc(author_id);
+
+    const doc = await users_ref.get();
+    if(!doc.exists) return;
+
+    const data = doc.data();
+    const has_reactions = () => data.second_level_reactions.length === config.second_level_reactions_count;
+    const has_messages = () => data.second_level_messages === config.second_level_messages_count;
+
+    if(data.second_level_reactions.includes(message_id)) return;
+    if(has_reactions() && has_messages()) return;
+
+    data.second_level_reactions.push(message_id);
+    const new_data = syncLevel(data);
+
+    await users_ref.update(new_data);
+}
+
+// Второй уровень - сообщения
+const addSecondLevelMessage = async (author_id, message_length) => {
+    const users_ref = db.collection('users').doc(author_id);
+
+    const doc = await users_ref.get();
+    if(!doc.exists) return;
+
+    const data = doc.data();
+    const has_reactions = () => data.second_level_reactions.length === config.second_level_reactions_count;
+    const has_messages = () => data.second_level_messages === config.second_level_messages_count;
+
+    if(has_messages()) return;
+    if(message_length < config.second_level_message_min_length) return;
+    if(has_reactions() && has_messages()) return;
+
+    data.second_level_messages++;
+    const new_data = syncLevel(data);
+
+    await users_ref.update(new_data);
+}
+
+// Третий уровень - телеграмм
+const setThirdLevelTelegram = async (author_id, telegram_id) => {
+    const users_ref = db.collection('users').doc(author_id);
+
+    const doc = await users_ref.get();
+    if(!doc.exists) return;
+
+    const data = doc.data();
+
+    if(data.third_level_tg) return;
+    if(data.third_level_tg && data.third_level_tw && data.third_level_invites === config.third_invites_count) return;
+
+    try {
+        const user_status = await bot.getChatMember(config.telegram_channel, telegram_id);
+        if(user_status.status === 'left') return;
+
+        data.third_level_tg = true;
+        const new_data = syncLevel(data);
+
+        await users_ref.update(new_data);
+    } catch (_) {}
+}
+
+const addThirdLevelInvite = async (author_id) => {
+    const users_ref = db.collection('users').doc(author_id);
+
+    const doc = await users_ref.get();
+    if(!doc.exists) return;
+
+    const data = doc.data();
+    if(data.third_level_invites === config.third_invites_count) return;
+
+    data.third_level_invites++;
+    const new_data = syncLevel(data);
+
+    await users_ref.update(new_data);
+}
 
 const getLevelInfo = async (author_id) => {
     const doc = await db.collection('users').doc(author_id).get();
-    const lvl_data = await doc.data();
+    const lvl_data = doc.exists ? await doc.data() : {
+        lvl: 0
+    };
     
     return lvl_data;
 }
 
-const addActivityCount = async (author_id, value) => {
-    const users_ref = db.collection('users').doc(author_id);
+let guildInvites = new Map();
 
-    let doc = await users_ref.get();
-    const lvl_data = doc.exists ? await doc.data() : {
-        lvl: 1,
-        activity: 0,
-        next_lvl: BASE_LEVEL,
-        is_telegram_active: false,
-        is_twitter_active: false
-    };
+client.on('inviteCreate', async invite => {
+    const invites = await invite.guild.fetchInvites();
 
-    lvl_data.activity += value;
-    while(lvl_data.next_lvl <= lvl_data.activity) {
-        lvl_data.next_lvl += PLUS_LEVEL;
-        lvl_data.lvl++;
-    }
+    guildInvites.set(invite.guild.id, invites);
+})
 
-    await users_ref.set(lvl_data);
-}
-
-const setTelegramActive = async (author_id) => {
-    const users_ref = db.collection('users').doc(author_id);
-    await users_ref.update({
-        is_telegram_active: true
-    });
-}
-
-const hasSocialActive = async (author_id, social_field) => {
-    const users_ref = db.collection('users').doc(author_id);
-    let doc = await users_ref.get();
-    if(!doc.exists) {
-        await users_ref.set({
-            lvl: 1,
-            activity: 0,
-            next_lvl: BASE_LEVEL,
-            is_telegram_active: false,
-            is_twitter_active: false
-        });
-
-        doc = await users_ref.get();
-    }
-
-    return (await doc.data())[social_field];
-}
-
-client.on('ready', () => {
+client.on('ready', async () => {
     console.log('I am ready!');
-    
+
     // Обновление списка сообщений
-    client.guilds.cache.each(guild => {
+    // guildInvites = await client.guilds.cache.array()[1].fetchInvites();
+    // client.guilds.cache.array()[1].channels.cache.filter(channel => channel.type === "text").each(channel => channel.messages.fetch());
+
+    client.guilds.cache.each(async (guild) => {
+        guildInvites.set(guild.id, await guild.fetchInvites());
         guild.channels.cache.filter(channel => channel.type === "text").each(channel => channel.messages.fetch());
+        return;
     })
+});
+
+client.on('guildMemberAdd', async member => {
+    const newInvites = await member.guild.fetchInvites();
+
+    try {
+        const usedInvite = newInvites.find(inv => guildInvites.get(inv.code).uses < inv.uses);
+
+        const author_id = usedInvite.inviter.id;
+        addThirdLevelInvite(author_id);
+    } catch (err) {
+        console.log("OnGuildMemberAdd Error:", err)
+    }
+    guildInvites.set(member.guild.id, newInvites);
 });
 
 client.on("message", async (message) => {
@@ -101,7 +208,7 @@ client.on("message", async (message) => {
     if(message.content === '!уровень') {
         const lvl_info = await getLevelInfo(author_id);
 
-        message.channel.send(`Ваш текущий уровень: ${lvl_info.lvl}. До следующего уровня: ${lvl_info.next_lvl - lvl_info.activity}`);
+        message.channel.send(`Ваш текущий уровень: ${lvl_info.lvl}!`);
         return;
     }
 
@@ -115,27 +222,8 @@ client.on("message", async (message) => {
         }
 
         const telegram_id = args[1];
-        if(await hasSocialActive(author_id, 'is_telegram_active')) {
-            message.channel.send("Вы уже привязали телеграмм аккаунт.");
-            return;
-        }
-
-        try {
-            const user_status = await bot.getChatMember(config.telegram_channel, telegram_id);
-            if(user_status.status === 'left') {
-                message.channel.send("Данного пользователя нет в нашем телеграмм канале.");
-                return;
-            }
-
-            message.channel.send("Пользователь является нашим подписчиком! Вам начислены дополнительные баллы!");
-            addActivityCount(author_id, SOCIAL_LEVEL);
-            setTelegramActive(author_id);
-        } catch (e) {
-            console.log(e);
-            message.channel.send("Данного пользователя нет в нашем телеграмм канале.");
-        } finally {
-            return;
-        }
+        setThirdLevelTelegram(author_id, telegram_id);
+        return;
     }
 
     if(args[0] === '!твиттер') {
@@ -145,22 +233,24 @@ client.on("message", async (message) => {
         }
 
         const twitter_id = args[1];
-        if(await hasSocialActive(author_id, 'is_twitter_active')) {
-            message.channel.send("Вы уже привязали твиттер аккаунт.");
-            return;
-        }
-
-
+        return;
     }
-        
-    addActivityCount(author_id, ACTIVITY_LEVEL);
+
+    addSecondLevelMessage(author_id, message.content.length);
 });
 
-client.on("messageReactionAdd", (_, user) => {
+client.on("messageReactionAdd", (reaction, user) => {
     if(user.bot) return;
     const author_id = user.id;
 
-    addActivityCount(author_id, ACTIVITY_LEVEL);
+    // 1 Уровень
+    if(reaction.message.id === config.first_level_message_id) {
+        giveFirstLevel(author_id);
+        return;
+    }
+
+    // 2 Уровень
+    addSecondLevelReaction(author_id, reaction.message.id);
 })
 
-client.login(process.env.DISCORD_BOT);
+client.login('OTk3NDEzMzAzMjM0MDgwODIx.GRKa0K.-XkB7NIyH76mzxbO5O8EwLqsGZtl2MGZgGy49s');

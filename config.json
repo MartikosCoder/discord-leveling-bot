@@ -3,5 +3,11 @@
     "base_level": 5,
     "plus_level": 10,
     "activity_level": 1,
-    "social_level": 10
+    "social_level": 10,
+
+    "first_level_message_id": "997136257828278362",
+    "second_level_reactions_count": 5,
+    "second_level_messages_count": 5,
+    "second_level_message_min_length": 2,
+    "third_invites_count": 2
 }

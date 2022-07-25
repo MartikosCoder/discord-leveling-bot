@@ -3,7 +3,7 @@ const config = require("./config.json");
 // TELEGRAM
 const TeleBot = require('telebot');
 const bot = new TeleBot({
-    token: '5500307758:AAGXi8AYMEs6B11xoFPn-B91eqJVebTrEr8'
+    token: process.env.TELEGRAM_BOT
 });
 
 // FIRESTORE
@@ -265,4 +265,4 @@ client.on("messageReactionAdd", (reaction, user) => {
     addSecondLevelReaction(author_id, reaction.message.id);
 })
 
-client.login('OTk3NDEzMzAzMjM0MDgwODIx.GRKa0K.-XkB7NIyH76mzxbO5O8EwLqsGZtl2MGZgGy49s');
+client.login(process.env.DISCORD_BOT);
